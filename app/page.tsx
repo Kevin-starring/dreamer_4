@@ -126,8 +126,10 @@ export default function Home() {
           <h1>{hasRoadmap ? <>Dream <span>Realizer</span></> : <>What do you <span>dream</span> about?</>}</h1>
           <p>{hasRoadmap ? 'Your dream is becoming a practical plan.' : 'Say it naturally. We will turn it into steps you can start.'}</p>
         </div>
-        {hasRoadmap && <span className="roadmap-status">Roadmap ready</span>}
-        <AccountPanel />
+        <div className="header-actions">
+          {hasRoadmap && <span className="roadmap-status">Roadmap ready</span>}
+          <AccountPanel />
+        </div>
       </header>
 
       <DreamInput
