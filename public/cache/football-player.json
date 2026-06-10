@@ -1,0 +1,58 @@
+{
+  "source": "golden-cache",
+  "root": {
+    "name": "Professional Football Player",
+    "toolId": null,
+    "feasibility": 58,
+    "children": [
+      {
+        "name": "Physical Training",
+        "toolId": null,
+        "feasibility": 88,
+        "children": [
+          { "name": "Personalized Training Program", "toolId": "claude", "useCase": "training-program" },
+          { "name": "Nutrition & Recovery Plan", "toolId": "chatgpt", "useCase": "nutrition-plan" },
+          { "name": "Performance Tracking System", "toolId": "notion-ai", "useCase": "training-log" }
+        ]
+      },
+      {
+        "name": "Technical Skills",
+        "toolId": null,
+        "feasibility": 80,
+        "children": [
+          { "name": "Position-specific Drill Plans", "toolId": "claude", "useCase": "training-program" },
+          { "name": "Video Analysis Research", "toolId": "perplexity", "useCase": "career-path-research" }
+        ]
+      },
+      {
+        "name": "Mental Performance",
+        "toolId": null,
+        "feasibility": 85,
+        "children": [
+          { "name": "Mental Conditioning Framework", "toolId": "claude", "useCase": "mental-conditioning" },
+          { "name": "Goal Setting & Visualization", "toolId": "notion-ai", "useCase": "training-log" },
+          { "name": "Sports Psychology Resources", "toolId": "perplexity", "useCase": "career-path-research" }
+        ]
+      },
+      {
+        "name": "Exposure & Scouting",
+        "toolId": null,
+        "feasibility": 55,
+        "children": [
+          { "name": "Highlight Reel Editing", "toolId": "capcut", "useCase": "highlight-reel" },
+          { "name": "Social Media Presence", "toolId": "copy-ai", "useCase": "social-captions" },
+          { "name": "Trial & Academy Research", "toolId": "perplexity", "useCase": "program-research" }
+        ]
+      },
+      {
+        "name": "Career Strategy",
+        "toolId": null,
+        "feasibility": 50,
+        "children": [
+          { "name": "Agent & Representation Research", "toolId": "perplexity", "useCase": "career-path-research" },
+          { "name": "Contract Basics Guide", "toolId": "claude", "useCase": "career-roadmap" }
+        ]
+      }
+    ]
+  }
+}

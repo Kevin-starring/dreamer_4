@@ -1,0 +1,58 @@
+{
+  "source": "golden-cache",
+  "root": {
+    "name": "Become a Firefighter",
+    "toolId": null,
+    "feasibility": 76,
+    "children": [
+      {
+        "name": "Physical Preparation",
+        "toolId": null,
+        "feasibility": 90,
+        "children": [
+          { "name": "CPAT Fitness Program", "toolId": "claude", "useCase": "training-program" },
+          { "name": "Endurance & Strength Plan", "toolId": "chatgpt", "useCase": "nutrition-plan" },
+          { "name": "Training Log", "toolId": "notion-ai", "useCase": "training-log" }
+        ]
+      },
+      {
+        "name": "Application Process",
+        "toolId": null,
+        "feasibility": 78,
+        "children": [
+          { "name": "Department Research & Requirements", "toolId": "perplexity", "useCase": "program-research" },
+          { "name": "Resume & Cover Letter", "toolId": "jasper", "useCase": "professional-cv" },
+          { "name": "Application Deadline Tracker", "toolId": "notion-ai", "useCase": "application-tracker" }
+        ]
+      },
+      {
+        "name": "Written Exam Prep",
+        "toolId": null,
+        "feasibility": 82,
+        "children": [
+          { "name": "Exam Topics & Study Guide", "toolId": "claude", "useCase": "study-plan" },
+          { "name": "Practice Test Resources", "toolId": "perplexity", "useCase": "program-research" }
+        ]
+      },
+      {
+        "name": "Technical Skills",
+        "toolId": null,
+        "feasibility": 72,
+        "children": [
+          { "name": "EMT & First Aid Certification Path", "toolId": "perplexity", "useCase": "career-path-research" },
+          { "name": "Fire Science Coursework Research", "toolId": "perplexity", "useCase": "career-path-research" },
+          { "name": "Technical Knowledge Study Plan", "toolId": "claude", "useCase": "study-plan" }
+        ]
+      },
+      {
+        "name": "Interview & Selection",
+        "toolId": null,
+        "feasibility": 74,
+        "children": [
+          { "name": "Interview Question Prep", "toolId": "claude", "useCase": "interview-prep" },
+          { "name": "Oral Board Practice", "toolId": "chatgpt", "useCase": "interview-practice" }
+        ]
+      }
+    ]
+  }
+}
