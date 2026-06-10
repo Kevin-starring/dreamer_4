@@ -1,28 +1,7 @@
 import type Stripe from 'stripe'
-import { getUserByEmail, saveUser, stripeCustomerKey } from '@/lib/auth'
-import { getRedis } from '@/lib/redis'
+import { getUserByEmail, saveUser } from '@/lib/auth'
 import { getStripe } from '@/lib/stripe'
-
-async function updateSubscription(subscription: Stripe.Subscription) {
-  const customerId = typeof subscription.customer === 'string'
-    ? subscription.customer
-    : subscription.customer.id
-  const mappedEmail = await getRedis().get<string>(stripeCustomerKey(customerId))
-  const email = subscription.metadata.userEmail || mappedEmail
-  if (!email) return
-
-  const user = await getUserByEmail(email)
-  if (!user) return
-
-  user.stripeCustomerId = customerId
-  user.stripeSubscriptionId = subscription.id
-  user.subscriptionStatus = subscription.status
-  const periodEnd = subscription.items.data[0]?.current_period_end
-  user.subscriptionCurrentPeriodEnd = periodEnd
-    ? new Date(periodEnd * 1000).toISOString()
-    : undefined
-  await saveUser(user)
-}
+import { updateSubscription } from '@/lib/subscription'
 
 async function linkCheckoutSession(session: Stripe.Checkout.Session) {
   const email = session.client_reference_id
@@ -33,6 +12,13 @@ async function linkCheckoutSession(session: Stripe.Checkout.Session) {
   if (!user) return
   user.stripeCustomerId = customerId
   await saveUser(user)
+
+  const subscriptionId = typeof session.subscription === 'string'
+    ? session.subscription
+    : session.subscription?.id
+  if (subscriptionId) {
+    await updateSubscription(await getStripe().subscriptions.retrieve(subscriptionId))
+  }
 }
 
 export async function POST(request: Request) {
