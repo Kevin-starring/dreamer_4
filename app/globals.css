@@ -2589,7 +2589,7 @@ body {
     min-width: 0;
     overflow-x: auto;
     white-space: nowrap;
-    touch-action: pan-x;
+    touch-action: pan-y;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
   }

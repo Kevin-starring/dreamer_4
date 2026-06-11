@@ -51,11 +51,37 @@ export default function DreamInput({ value, onChange, onSubmit, loading }: Props
   const [speechSupported, setSpeechSupported] = useState(true)
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
   const speechBaseValueRef = useRef('')
+  const touchDragRef = useRef({ x: 0, y: 0, scrollLeft: 0, dragging: false })
 
   useEffect(() => () => recognitionRef.current?.stop(), [])
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !loading) onSubmit()
+  }
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLInputElement>) => {
+    const touch = event.touches[0]
+    touchDragRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      scrollLeft: event.currentTarget.scrollLeft,
+      dragging: false,
+    }
+  }
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLInputElement>) => {
+    const touch = event.touches[0]
+    const drag = touchDragRef.current
+    const deltaX = touch.clientX - drag.x
+    const deltaY = touch.clientY - drag.y
+
+    if (!drag.dragging && Math.abs(deltaX) > 6 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      drag.dragging = true
+    }
+    if (!drag.dragging) return
+
+    event.preventDefault()
+    event.currentTarget.scrollLeft = drag.scrollLeft - deltaX
   }
 
   const toggleSpeech = () => {
@@ -122,6 +148,8 @@ export default function DreamInput({ value, onChange, onSubmit, loading }: Props
           value={value}
           onChange={e => onChange(e.target.value)}
           onKeyDown={handleKey}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           placeholder={t('dreamPlaceholder')}
           maxLength={500}
           disabled={loading}
