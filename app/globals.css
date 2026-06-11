@@ -2334,3 +2334,296 @@ body {
     display: none;
   }
 }
+
+/* Mobile usability pass */
+@media (max-width: 760px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  button,
+  a,
+  input {
+    touch-action: manipulation;
+  }
+
+  input,
+  .dream-bubble input,
+  .account-popover input,
+  .editor-branch-name,
+  .editor-task-input,
+  .schedule-input,
+  .schedule-select {
+    font-size: 16px;
+  }
+
+  .app {
+    width: 100%;
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .header {
+    min-height: 112px;
+    padding: 58px 16px 12px;
+    align-items: flex-end;
+  }
+
+  .app--conversation .header {
+    min-height: 210px;
+    padding: 72px 18px 18px;
+  }
+
+  .app--roadmap .header {
+    min-height: 112px;
+  }
+
+  .header-content {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .header h1 {
+    font-size: clamp(20px, 7vw, 26px);
+    line-height: 1.08;
+    letter-spacing: 0;
+  }
+
+  .header p {
+    max-width: calc(100vw - 32px);
+    line-height: 1.45;
+  }
+
+  .header-actions {
+    top: 12px;
+    right: max(12px, env(safe-area-inset-right));
+    transform: none;
+  }
+
+  .account-panel {
+    position: static;
+    transform: none;
+  }
+
+  .account-trigger {
+    min-height: 44px;
+    max-width: min(42vw, 150px);
+    padding: 10px 12px;
+  }
+
+  .conversation-input,
+  .app--roadmap .conversation-input {
+    width: calc(100% - 24px);
+    margin-bottom: 12px;
+    align-items: center;
+  }
+
+  .conversation-avatar {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .dream-bubble {
+    padding: 10px 54px 10px 14px;
+    border-radius: 18px 18px 18px 6px;
+  }
+
+  .dream-bubble input {
+    height: 32px;
+  }
+
+  .dream-bubble button {
+    right: 6px;
+    bottom: 6px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .cache-note,
+  .error-banner {
+    width: calc(100% - 24px);
+    margin-inline: auto;
+  }
+
+  .error-banner button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .progress-section {
+    padding: 8px 12px 10px;
+    overflow: hidden;
+  }
+
+  .progress-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 6px 8px;
+  }
+
+  .progress-steps {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .progress-pct {
+    min-width: auto;
+  }
+
+  .progress-header .edit-plan-btn {
+    grid-row: 2;
+    min-height: 44px;
+    margin: 0;
+    padding: 8px 12px;
+  }
+
+  .progress-header .edit-plan-btn:first-of-type {
+    grid-column: 1 / 3;
+  }
+
+  .progress-header .edit-plan-btn:last-of-type {
+    grid-column: 3;
+  }
+
+  .plan-editor,
+  .schedule-panel {
+    width: calc(100% - 24px);
+    max-height: none;
+    margin: 0 12px 12px;
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .editor-branch {
+    padding: 10px;
+  }
+
+  .editor-task-row {
+    align-items: stretch;
+  }
+
+  .editor-icon-btn,
+  .editor-add-btn,
+  .editor-add-branch-btn,
+  .editor-apply-btn {
+    min-height: 44px;
+  }
+
+  .app--roadmap .main {
+    width: calc(100% - 16px);
+    margin: 0 8px 8px;
+    border-radius: 14px;
+  }
+
+  .diagram-panel {
+    width: 100%;
+    height: min(58dvh, 520px);
+    min-height: 350px;
+  }
+
+  .diagram-panel svg {
+    touch-action: none;
+  }
+
+  .feasibility-legend {
+    top: 8px;
+    left: 8px;
+    width: calc(100% - 16px);
+    padding: 7px 9px;
+  }
+
+  .zoom-controls {
+    right: 8px;
+    bottom: 8px;
+    max-width: calc(100% - 16px);
+  }
+
+  .zoom-btn,
+  .zoom-reset-btn {
+    min-width: 44px;
+    height: 44px;
+  }
+
+  .tool-panel {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    padding: 18px 14px calc(18px + env(safe-area-inset-bottom));
+    overflow: visible;
+  }
+
+  .tool-header,
+  .prompt-box,
+  .guide-section {
+    min-width: 0;
+  }
+
+  .tool-name,
+  .tool-desc,
+  .prompt-box pre,
+  .why-text {
+    overflow-wrap: anywhere;
+  }
+
+  .copy-btn,
+  .open-btn,
+  .complete-btn,
+  .rating-btn {
+    min-height: 44px;
+  }
+
+  .account-backdrop {
+    align-items: end;
+    padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .account-popover {
+    width: 100%;
+    max-height: calc(100dvh - 24px);
+    border-radius: 16px;
+  }
+
+  .account-primary,
+  .account-secondary,
+  .account-tabs button {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 390px) {
+  .app--conversation .header h1 {
+    font-size: 34px;
+  }
+
+  .conversation-avatar {
+    display: none;
+  }
+
+  .dream-bubble::before {
+    display: none;
+  }
+
+  .progress-header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .progress-label {
+    display: none;
+  }
+
+  .progress-header .edit-plan-btn:first-of-type {
+    grid-column: 1;
+  }
+
+  .progress-header .edit-plan-btn:last-of-type {
+    grid-column: 2;
+  }
+}
