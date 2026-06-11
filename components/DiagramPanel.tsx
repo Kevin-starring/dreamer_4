@@ -269,8 +269,8 @@ export default function DiagramPanel({ data, onNodeClick, completedNodes, loadin
 
     node
       .append('text')
-      .attr('class', 'node-label')
-      .attr('dy', '0.32em')
+      .attr('class', d => d.depth === 0 ? 'node-label node-label--root' : 'node-label')
+      .attr('dy', d => d.depth === 0 ? 32 : '0.32em')
       .attr('x', d => d.depth === 0 ? 0 : d.children ? -12 : 12)
       .attr('text-anchor', d => d.depth === 0 ? 'middle' : d.children ? 'end' : 'start')
       .attr('font-size', d => d.depth === 0 ? '13px' : d.data.toolId ? '11px' : '12px')
