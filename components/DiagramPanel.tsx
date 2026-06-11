@@ -9,6 +9,7 @@ import type { ZoomBehavior } from 'd3-zoom'
 import 'd3-transition'
 import type { TreeNode } from '@/lib/types'
 import type { Theme } from '@/lib/useTheme'
+import { useLanguage } from '@/components/LanguageProvider'
 
 const PHYSICS_DREAMS = [
   'learn something new',
@@ -137,6 +138,7 @@ const MIN_CANVAS_HEIGHT = 520
 const MARGIN = { top: 40, right: 200, bottom: 40, left: 160 }
 
 export default function DiagramPanel({ data, onNodeClick, completedNodes, loading, theme = 'dark' }: Props) {
+  const { t } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null)
@@ -332,26 +334,26 @@ export default function DiagramPanel({ data, onNodeClick, completedNodes, loadin
       {loading && (
         <div className="diagram-loading">
           <div className="spinner" />
-          <p>Realizing your dream...</p>
+          <p>{t('realizing')}</p>
         </div>
       )}
       {!loading && !data && (
         <div className="diagram-empty">
           <PhysicsBubbles />
-          <p className="conversation-hint">Your words become a roadmap.</p>
+          <p className="conversation-hint">{t('roadmapHint')}</p>
         </div>
       )}
       {data && !loading && (
         <>
           <div className="feasibility-legend">
             <span className="feasibility-dot" />
-            <span><strong>Feasibility score</strong> estimates how achievable each step is with the current plan and AI tools.</span>
+            <span><strong>{t('feasibility')}</strong> {t('feasibilityText')}</span>
           </div>
           <div className="zoom-controls">
-            <button className="zoom-btn" onClick={() => zoomAtCenter(1 / 1.35)} title="Zoom out" aria-label="Zoom out">-</button>
+            <button className="zoom-btn" onClick={() => zoomAtCenter(1 / 1.35)} title={t('zoomOut')} aria-label={t('zoomOut')}>-</button>
             <span className="zoom-level">{zoomLevel}%</span>
-            <button className="zoom-btn" onClick={() => zoomAtCenter(1.35)} title="Zoom in" aria-label="Zoom in">+</button>
-            <button className="zoom-reset-btn" onClick={handleZoomReset}>Reset</button>
+            <button className="zoom-btn" onClick={() => zoomAtCenter(1.35)} title={t('zoomIn')} aria-label={t('zoomIn')}>+</button>
+            <button className="zoom-reset-btn" onClick={handleZoomReset}>{t('reset')}</button>
           </div>
         </>
       )}

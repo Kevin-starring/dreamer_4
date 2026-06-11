@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { TreeNode } from '@/lib/types'
+import { useLanguage } from '@/components/LanguageProvider'
 
 interface EditTask { id: string; name: string }
 interface EditBranch { id: string; name: string; tasks: EditTask[] }
@@ -24,6 +25,7 @@ function initBranches(tree: TreeNode): EditBranch[] {
 }
 
 export default function PlanEditorPanel({ treeData, dream, onTreeUpdate }: Props) {
+  const { language } = useLanguage()
   const [branches, setBranches] = useState<EditBranch[]>(() => initBranches(treeData))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -68,7 +70,7 @@ export default function PlanEditorPanel({ treeData, dream, onTreeUpdate }: Props
       const res = await fetch('/api/reassign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dream, branches: valid }),
+        body: JSON.stringify({ dream, branches: valid, language }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))

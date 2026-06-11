@@ -7,6 +7,8 @@ import ToolPanel from '@/components/ToolPanel'
 import PlanEditorPanel from '@/components/PlanEditorPanel'
 import SchedulePanel from '@/components/SchedulePanel'
 import AccountPanel from '@/components/AccountPanel'
+import LanguageMenu from '@/components/LanguageMenu'
+import { useLanguage } from '@/components/LanguageProvider'
 import type { DecomposeResponse, Tool, TreeNode } from '@/lib/types'
 import toolsData from '@/data/tools.json'
 
@@ -24,6 +26,7 @@ function getLeafNames(node: TreeNode): string[] {
 }
 
 export default function Home() {
+  const { language, t } = useLanguage()
   const [dream, setDream] = useState('')
   const [treeData, setTreeData] = useState<TreeNode | null>(null)
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null)
@@ -68,7 +71,7 @@ export default function Home() {
       const res = await fetch('/api/decompose', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dream: dream.trim() }),
+        body: JSON.stringify({ dream: dream.trim(), language }),
       })
 
       if (!res.ok) {
@@ -91,7 +94,7 @@ export default function Home() {
       }
 
     } catch {
-      setError('Connection error. Check your internet and try again.')
+      setError(t('connectionError'))
     } finally {
       setLoading(false)
     }
@@ -136,11 +139,12 @@ export default function Home() {
     <div className={`app ${hasRoadmap ? 'app--roadmap' : 'app--conversation'}`}>
       <header className="header">
         <div className="header-content">
-          <h1>{hasRoadmap ? <>Dream <span>Realizer</span></> : <>What do you <span>dream</span> about?</>}</h1>
-          <p>{hasRoadmap ? 'Your dream is becoming a practical plan.' : 'Say it naturally. We will turn it into steps you can start.'}</p>
+          <h1>{hasRoadmap ? t('roadmapTitle') : t('dreamTitle')}</h1>
+          <p>{hasRoadmap ? t('roadmapSubtitle') : t('dreamSubtitle')}</p>
         </div>
         <div className="header-actions">
-          {hasRoadmap && <span className="roadmap-status">Roadmap ready</span>}
+          {hasRoadmap && <span className="roadmap-status">{t('roadmapReady')}</span>}
+          <LanguageMenu />
           <AccountPanel />
         </div>
       </header>
@@ -166,8 +170,8 @@ export default function Home() {
       {treeData && totalSteps > 0 && (
         <div className="progress-section">
           <div className="progress-header">
-            <span className="progress-label">Progress</span>
-            <span className="progress-steps">{completedSteps} / {totalSteps} steps done</span>
+            <span className="progress-label">{t('progress')}</span>
+            <span className="progress-steps">{completedSteps} / {totalSteps} {t('stepsDone')}</span>
             <span className="progress-pct">{progressPct}%</span>
             <button
               className={`edit-plan-btn ${showEditor ? 'edit-plan-btn--active' : ''}`}
@@ -176,7 +180,7 @@ export default function Home() {
                 setShowSchedule(false)
               }}
             >
-              {showEditor ? '▲ End Edit' : '✏️ Edit Plan'}
+              {showEditor ? `▲ ${t('endEdit')}` : `✏️ ${t('editPlan')}`}
             </button>
             <button
               className={`edit-plan-btn ${showSchedule ? 'edit-plan-btn--active' : ''}`}
@@ -185,7 +189,7 @@ export default function Home() {
                 setShowEditor(false)
               }}
             >
-              {showSchedule ? '▲ Close Schedule' : 'Schedule'}
+              {showSchedule ? `▲ ${t('closeSchedule')}` : t('schedule')}
             </button>
           </div>
           <div className="progress-track">

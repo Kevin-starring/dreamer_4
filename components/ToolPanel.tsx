@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect, useSyncExternalStore } from 'react'
 import type { Tool } from '@/lib/types'
 import { fillPrompt } from '@/lib/fillPrompt'
 import { matchBestPrompt } from '@/lib/matchBestPrompt'
+import { useLanguage } from '@/components/LanguageProvider'
 
 interface Props {
   tool: Tool | null
@@ -46,6 +47,7 @@ function saveRatings(ratings: Record<string, Rating>) {
 }
 
 export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted, onToggleComplete }: Props) {
+  const { language, t } = useLanguage()
   const [copied, setCopied] = useState(false)
   const [customResult, setCustomResult] = useState<CustomPromptResult | null>(null)
 
@@ -54,13 +56,13 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
     try { return JSON.parse(ratingsSnapshot) } catch { return {} }
   }, [ratingsSnapshot])
 
-  // Live node = came from Anthropic API response (no useCase annotation)
-  const isLiveNode = !!tool && useCase === undefined
+  // Non-English prompts are generated live even when the roadmap came from the English cache.
+  const isLiveNode = !!tool && (useCase === undefined || language !== 'en')
   const toolId = tool?.id
   const toolName = tool?.name
   const toolDescription = tool?.description
   const liveRequestKey = isLiveNode && toolId && nodeName && dream
-    ? JSON.stringify([dream, nodeName, toolId, toolName, toolDescription])
+    ? JSON.stringify([dream, nodeName, toolId, toolName, toolDescription, language])
     : null
 
   useEffect(() => {
@@ -77,6 +79,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
         toolId,
         toolName,
         toolDescription,
+        language,
       }),
     })
       .then(r => r.json())
@@ -98,7 +101,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
       })
 
     return () => { cancelled = true }
-  }, [liveRequestKey, toolId, toolName, toolDescription, nodeName, dream])
+  }, [liveRequestKey, toolId, toolName, toolDescription, nodeName, dream, language])
 
   const currentCustomResult = customResult?.requestKey === liveRequestKey ? customResult : null
   const customPrompt = currentCustomResult?.data ?? null
@@ -128,7 +131,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
     return (
       <div className="tool-panel tool-panel--empty" id="tool-recommendation">
         <div className="tool-panel-hint">
-          <p>Click any node in the diagram to see the recommended AI tool and prompt</p>
+          <p>{t('toolHint')}</p>
         </div>
       </div>
     )
@@ -185,18 +188,18 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
           className={`complete-btn ${isCompleted ? 'complete-btn--done' : ''}`}
           onClick={handleToggle}
         >
-          {isCompleted ? '✅ Completed — click to undo' : '☐ Mark this step as done'}
+          {isCompleted ? `✅ ${t('undoComplete')}` : `☐ ${t('complete')}`}
         </button>
       )}
 
       <p className="tool-desc">{tool.description}</p>
 
       <div className="prompt-section">
-        <div className="prompt-label">Recommended Prompt</div>
+        <div className="prompt-label">{t('recommendedPrompt')}</div>
         {customLoading ? (
           <div className="prompt-generating">
             <span className="prompt-spinner" />
-            Generating personalized prompt…
+            {t('generatingPrompt')}
           </div>
         ) : promptText ? (
           <>
@@ -207,7 +210,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
                 onClick={handleCopy}
                 aria-label="Copy prompt to clipboard"
               >
-                {copied ? '✅ Copied' : '📋 Copy'}
+                {copied ? `✅ ${t('copied')}` : `📋 ${t('copy')}`}
               </button>
             </div>
             {promptText.includes('[') && (
@@ -229,7 +232,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
 
       {steps.length > 0 && (
         <div className="guide-section">
-          <h4>How to use {tool.name}</h4>
+          <h4>{t('howToUse')} {tool.name}</h4>
           {steps.map((step, i) => (
             <div key={i} className="guide-step">
               <span>Step {i + 1}:</span> {step}
@@ -239,7 +242,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
       )}
 
       <div className="guide-section">
-        <h4>Why this tool?</h4>
+        <h4>{t('whyTool')}</h4>
         <p className="why-text">{tool.why}</p>
       </div>
 

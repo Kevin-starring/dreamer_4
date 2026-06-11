@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { parseDecomposition, EmptyResponseError } from '@/lib/parseDecomposition'
 import type { DecomposeResponse, TreeNode } from '@/lib/types'
+import { LANGUAGES, languagePromptName, type LanguageCode } from '@/lib/i18n'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -68,11 +69,13 @@ RULES:
 export async function POST(request: Request) {
   let dream: string
   let branches: Array<{ name: string; tasks: string[] }>
+  let language: LanguageCode = 'en'
 
   try {
     const body = await request.json()
     dream = body.dream?.trim()
     branches = body.branches
+    if (LANGUAGES.some(item => item.code === body.language)) language = body.language
   } catch {
     return Response.json({ error: 'Invalid request body' }, { status: 400 })
   }
@@ -102,7 +105,7 @@ ${planText}`
       {
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,
-        system: SYSTEM_PROMPT,
+        system: `${SYSTEM_PROMPT}\n\nWrite any generated text in ${languagePromptName(language)}. Keep the user's existing names and official AI tool IDs unchanged.`,
         messages: [{ role: 'user', content: userMessage }],
       },
       { signal: AbortSignal.timeout(10000) }

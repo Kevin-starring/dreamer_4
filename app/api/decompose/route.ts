@@ -5,6 +5,7 @@ import { searchExa, formatExaResults } from '@/lib/exaSearch'
 export const maxDuration = 45
 import { matchGoldenPath } from '@/lib/goldenPathMatch'
 import type { DecomposeResponse, TreeNode } from '@/lib/types'
+import { LANGUAGES, languagePromptName, type LanguageCode } from '@/lib/i18n'
 
 import youtubeCoooking from '@/public/cache/golden-path.json'
 import doctor from '@/public/cache/doctor.json'
@@ -188,10 +189,12 @@ function buildFallbackTree(dream: string): TreeNode {
 
 export async function POST(request: Request) {
   let dream: string
+  let language: LanguageCode = 'en'
 
   try {
     const body = await request.json()
     dream = body.dream?.trim()
+    if (LANGUAGES.some(item => item.code === body.language)) language = body.language
   } catch {
     return Response.json({ error: 'Invalid request body' }, { status: 400 })
   }
@@ -205,7 +208,7 @@ export async function POST(request: Request) {
   }
 
   const goldenKey = matchGoldenPath(dream)
-  if (goldenKey) {
+  if (goldenKey && language === 'en') {
     const cached = loadGoldenCache(goldenKey)
     if (!cached) {
       console.error(`Golden cache missing for key: ${goldenKey}`)
@@ -230,7 +233,7 @@ export async function POST(request: Request) {
       {
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,
-        system: SYSTEM_PROMPT,
+        system: `${SYSTEM_PROMPT}\n\nWrite every dream title, branch name, and task name in ${languagePromptName(language)}. Keep official AI tool IDs unchanged.`,
         messages: [{ role: 'user', content: `${exaContext}My dream: ${dream}` }],
       },
       { signal: AbortSignal.timeout(25000) }

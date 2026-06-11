@@ -1,13 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { Redis } from '@upstash/redis'
+import { LANGUAGES, languagePromptName, type LanguageCode } from '@/lib/i18n'
 
 export const maxDuration = 30
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-function cacheKey(toolId: string, dream: string, taskName: string): string {
+function cacheKey(toolId: string, dream: string, taskName: string, language: LanguageCode): string {
   const norm = (s: string) => s.toLowerCase().trim().replace(/\s+/g, ' ').slice(0, 100)
-  return `tp:${toolId}:${norm(dream)}:${norm(taskName)}`
+  return `tp:${language}:${toolId}:${norm(dream)}:${norm(taskName)}`
 }
 
 function getRedis(): Redis | null {
@@ -20,6 +21,7 @@ function getRedis(): Redis | null {
 
 export async function POST(request: Request) {
   let dream: string, taskName: string, toolId: string, toolName: string, toolDescription: string
+  let language: LanguageCode = 'en'
 
   try {
     const body = await request.json()
@@ -28,6 +30,7 @@ export async function POST(request: Request) {
     toolId = String(body.toolId ?? '').trim()
     toolName = String(body.toolName ?? '').trim()
     toolDescription = String(body.toolDescription ?? '').trim()
+    if (LANGUAGES.some(item => item.code === body.language)) language = body.language
   } catch {
     return Response.json({ error: 'Invalid request' }, { status: 400 })
   }
@@ -37,7 +40,7 @@ export async function POST(request: Request) {
   }
 
   const redis = getRedis()
-  const key = cacheKey(toolId, dream, taskName)
+  const key = cacheKey(toolId, dream, taskName, language)
 
   if (redis) {
     try {
@@ -59,7 +62,8 @@ export async function POST(request: Request) {
         max_tokens: 600,
         system: `You generate focused AI tool prompts for specific tasks in a dream roadmap.
 Output ONLY a valid JSON object with no markdown, no explanation:
-{"prompt":"...","steps":["...","...",...]}`,
+{"prompt":"...","steps":["...","...",...]}
+Write the prompt and every step in ${languagePromptName(language)}. Keep official product names unchanged.`,
         messages: [{
           role: 'user',
           content: `Dream goal: ${dream}
