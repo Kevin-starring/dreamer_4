@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect, useSyncExternalStore } from 'react'
+import { useMemo, useState, useEffect, useSyncExternalStore, type MouseEvent } from 'react'
 import type { Tool } from '@/lib/types'
 import { fillPrompt } from '@/lib/fillPrompt'
 import { matchBestPrompt } from '@/lib/matchBestPrompt'
@@ -25,6 +25,18 @@ interface CustomPromptResult {
 
 const RATINGS_KEY = 'dreamer_ratings'
 const RATINGS_EVENT = 'dreamer-ratings-change'
+const MOBILE_TOOL_URLS: Record<string, string> = {
+  chatgpt: 'https://chatgpt.com/',
+  claude: 'https://claude.ai/new',
+  runway: 'https://app.runwayml.com/',
+  elevenlabs: 'https://elevenlabs.io/app/speech-synthesis',
+  gamma: 'https://gamma.app/',
+  perplexity: 'https://www.perplexity.ai/',
+  capcut: 'https://www.capcut.com/editor',
+  'notion-ai': 'https://www.notion.so/',
+  figma: 'https://www.figma.com/files/',
+  suno: 'https://suno.com/create',
+}
 
 function getRatingsSnapshot(): string {
   return localStorage.getItem(RATINGS_KEY) ?? '{}'
@@ -160,6 +172,17 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
     }).catch(() => {})
   }
 
+  const handleOpenTool = (event: MouseEvent<HTMLAnchorElement>) => {
+    track()
+
+    const isMobile = window.matchMedia('(max-width: 980px)').matches
+    if (!isMobile) return
+
+    // Same-tab universal links let installed mobile apps claim the URL.
+    event.preventDefault()
+    window.location.assign(MOBILE_TOOL_URLS[tool.id] ?? tool.url)
+  }
+
   const handleToggle = () => {
     if (nodeName && onToggleComplete) onToggleComplete(nodeName)
   }
@@ -225,7 +248,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
         href={tool.url}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={track}
+        onClick={handleOpenTool}
       >
         Open in {tool.name} →
       </a>

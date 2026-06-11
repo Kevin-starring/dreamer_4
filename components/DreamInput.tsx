@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLanguage } from '@/components/LanguageProvider'
 
 interface SpeechRecognitionResultLike {
@@ -53,7 +53,35 @@ export default function DreamInput({ value, onChange, onSubmit, loading }: Props
   const speechBaseValueRef = useRef('')
   const touchDragRef = useRef({ x: 0, y: 0, scrollLeft: 0, dragging: false })
 
-  useEffect(() => () => recognitionRef.current?.stop(), [])
+  const stopSpeech = useCallback(() => {
+    const recognition = recognitionRef.current
+    recognitionRef.current = null
+    setListening(false)
+
+    try {
+      recognition?.stop()
+    } catch { /* recognition already stopped */ }
+  }, [])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') stopSpeech()
+    }
+    const handleWindowBlur = () => {
+      if (window.matchMedia('(max-width: 980px)').matches) stopSpeech()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('pagehide', stopSpeech)
+    window.addEventListener('blur', handleWindowBlur)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('pagehide', stopSpeech)
+      window.removeEventListener('blur', handleWindowBlur)
+      stopSpeech()
+    }
+  }, [stopSpeech])
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !loading) onSubmit()
@@ -86,7 +114,7 @@ export default function DreamInput({ value, onChange, onSubmit, loading }: Props
 
   const toggleSpeech = () => {
     if (listening) {
-      recognitionRef.current?.stop()
+      stopSpeech()
       return
     }
 
@@ -120,12 +148,16 @@ export default function DreamInput({ value, onChange, onSubmit, loading }: Props
       }
     }
     recognition.onend = () => {
-      recognitionRef.current = null
-      setListening(false)
+      if (recognitionRef.current === recognition) {
+        recognitionRef.current = null
+        setListening(false)
+      }
     }
     recognition.onerror = () => {
-      recognitionRef.current = null
-      setListening(false)
+      if (recognitionRef.current === recognition) {
+        recognitionRef.current = null
+        setListening(false)
+      }
     }
     recognitionRef.current = recognition
     setListening(true)
@@ -163,7 +195,13 @@ export default function DreamInput({ value, onChange, onSubmit, loading }: Props
           title={speechSupported ? (listening ? t('stopListening') : t('voiceInput')) : t('voiceUnsupported')}
           type="button"
         >
-          <span aria-hidden="true">{listening ? '■' : '🎙'}</span>
+          <span className="voice-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 15.5a4 4 0 0 0 4-4v-4a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z" />
+              <path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M8.5 21h7" />
+            </svg>
+            {listening && <span className="voice-recording-dot" />}
+          </span>
         </button>
         <button
           className="dream-send-btn"
