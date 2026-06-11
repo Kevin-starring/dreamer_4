@@ -3,8 +3,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLanguage } from '@/components/LanguageProvider'
 
+interface SpeechRecognitionResultLike {
+  0?: { transcript: string }
+  isFinal?: boolean
+  item?: (index: number) => { transcript: string } | null
+}
+
 interface SpeechRecognitionEventLike {
-  results: ArrayLike<{ 0: { transcript: string } }>
+  resultIndex?: number
+  results: ArrayLike<SpeechRecognitionResultLike> & {
+    item?: (index: number) => SpeechRecognitionResultLike | null
+  }
 }
 
 interface SpeechRecognitionLike {
@@ -41,6 +50,7 @@ export default function DreamInput({ value, onChange, onSubmit, loading }: Props
   const [listening, setListening] = useState(false)
   const [speechSupported, setSpeechSupported] = useState(true)
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
+  const speechBaseValueRef = useRef('')
 
   useEffect(() => () => recognitionRef.current?.stop(), [])
 
@@ -66,20 +76,39 @@ export default function DreamInput({ value, onChange, onSubmit, loading }: Props
 
     const recognition = new Recognition()
     recognition.continuous = false
-    recognition.interimResults = false
+    recognition.interimResults = true
     recognition.lang = speechLanguages[language]
+    speechBaseValueRef.current = value.trim()
     recognition.onresult = event => {
-      const transcript = Array.from(event.results)
-        .map(result => result[0]?.transcript ?? '')
-        .join(' ')
-        .trim()
-      if (transcript) onChange([value.trim(), transcript].filter(Boolean).join(' ').slice(0, 500))
+      const transcripts: string[] = []
+
+      for (let index = 0; index < event.results.length; index += 1) {
+        const result = event.results[index] ?? event.results.item?.(index)
+        const alternative = result?.[0] ?? result?.item?.(0)
+        if (alternative?.transcript) transcripts.push(alternative.transcript)
+      }
+
+      const transcript = transcripts.join(' ').trim()
+      if (transcript) {
+        onChange([speechBaseValueRef.current, transcript].filter(Boolean).join(' ').slice(0, 500))
+      }
     }
-    recognition.onend = () => setListening(false)
-    recognition.onerror = () => setListening(false)
+    recognition.onend = () => {
+      recognitionRef.current = null
+      setListening(false)
+    }
+    recognition.onerror = () => {
+      recognitionRef.current = null
+      setListening(false)
+    }
     recognitionRef.current = recognition
     setListening(true)
-    recognition.start()
+    try {
+      recognition.start()
+    } catch {
+      recognitionRef.current = null
+      setListening(false)
+    }
   }
 
   return (
