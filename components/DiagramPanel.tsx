@@ -37,75 +37,90 @@ function PhysicsBubbles() {
     const wrap = wrapRef.current
     if (!wrap) return
     let alive = true
+    let initialized = false
 
-    const initId = requestAnimationFrame(() => {
-      if (!alive) return
+    const initialize = () => {
       const W = wrap.offsetWidth
       const H = wrap.offsetHeight
+      if (!alive || W < 40 || H < 40) return false
 
       phys.current = elemsRef.current.map(el => {
         const rect = el?.getBoundingClientRect() ?? { width: 120, height: 40 }
-        const w = rect.width, h = rect.height
-        const r = Math.max(w, h) / 2 + 10
+        const w = Math.min(rect.width, Math.max(40, W - 12))
+        const h = Math.min(rect.height, Math.max(24, H - 12))
+        const compact = W < 640
+        const r = Math.max(w, h) * (compact ? 0.42 : 0.5) + (compact ? 3 : 10)
+        const speed = compact ? 0.85 : 0.5
         return {
           w, h, r,
           x: w / 2 + Math.random() * Math.max(0, W - w),
           y: h / 2 + Math.random() * Math.max(0, H - h),
-          vx: (Math.random() < 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.7),
-          vy: (Math.random() < 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.7),
+          vx: (Math.random() < 0.5 ? 1 : -1) * (speed + Math.random() * 0.7),
+          vy: (Math.random() < 0.5 ? 1 : -1) * (speed + Math.random() * 0.7),
         }
       })
+      initialized = true
+      return true
+    }
 
-      const tick = () => {
-        if (!alive) return
-        const W = wrap.offsetWidth, H = wrap.offsetHeight
-        const bs = phys.current
+    const tick = () => {
+      if (!alive) return
+      if (!initialized && !initialize()) {
+        rafRef.current = requestAnimationFrame(tick)
+        return
+      }
 
-        for (const b of bs) {
-          b.x += b.vx; b.y += b.vy
-          if (b.x - b.w / 2 < 0) { b.x = b.w / 2; b.vx = Math.abs(b.vx) }
-          if (b.x + b.w / 2 > W) { b.x = W - b.w / 2; b.vx = -Math.abs(b.vx) }
-          if (b.y - b.h / 2 < 0) { b.y = b.h / 2; b.vy = Math.abs(b.vy) }
-          if (b.y + b.h / 2 > H) { b.y = H - b.h / 2; b.vy = -Math.abs(b.vy) }
-        }
+      const W = wrap.offsetWidth, H = wrap.offsetHeight
+      const bs = phys.current
 
-        for (let i = 0; i < bs.length; i++) {
-          for (let j = i + 1; j < bs.length; j++) {
-            const a = bs[i], b = bs[j]
-            const dx = b.x - a.x, dy = b.y - a.y
-            const dist = Math.sqrt(dx * dx + dy * dy)
-            const minD = a.r + b.r
-            if (dist < minD && dist > 0) {
-              const nx = dx / dist, ny = dy / dist
-              const overlap = (minD - dist) / 2
-              a.x -= nx * overlap; a.y -= ny * overlap
-              b.x += nx * overlap; b.y += ny * overlap
-              const relV = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny
-              if (relV > 0) {
-                a.vx -= relV * nx; a.vy -= relV * ny
-                b.vx += relV * nx; b.vy += relV * ny
-              }
+      for (const b of bs) {
+        b.x += b.vx; b.y += b.vy
+        if (b.x - b.w / 2 < 0) { b.x = b.w / 2; b.vx = Math.abs(b.vx) }
+        if (b.x + b.w / 2 > W) { b.x = W - b.w / 2; b.vx = -Math.abs(b.vx) }
+        if (b.y - b.h / 2 < 0) { b.y = b.h / 2; b.vy = Math.abs(b.vy) }
+        if (b.y + b.h / 2 > H) { b.y = H - b.h / 2; b.vy = -Math.abs(b.vy) }
+      }
+
+      for (let i = 0; i < bs.length; i++) {
+        for (let j = i + 1; j < bs.length; j++) {
+          const a = bs[i], b = bs[j]
+          const dx = b.x - a.x, dy = b.y - a.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const minD = a.r + b.r
+          if (dist < minD && dist > 0) {
+            const nx = dx / dist, ny = dy / dist
+            const overlap = (minD - dist) / 2
+            a.x -= nx * overlap; a.y -= ny * overlap
+            b.x += nx * overlap; b.y += ny * overlap
+            const relV = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny
+            if (relV > 0) {
+              a.vx -= relV * nx; a.vy -= relV * ny
+              b.vx += relV * nx; b.vy += relV * ny
             }
           }
         }
-
-        bs.forEach((b, i) => {
-          const el = elemsRef.current[i]
-          if (el) {
-            el.style.left = `${b.x - b.w / 2}px`
-            el.style.top = `${b.y - b.h / 2}px`
-          }
-        })
-
-        rafRef.current = requestAnimationFrame(tick)
       }
 
+      bs.forEach((b, i) => {
+        const el = elemsRef.current[i]
+        if (el) {
+          el.style.left = `${b.x - b.w / 2}px`
+          el.style.top = `${b.y - b.h / 2}px`
+        }
+      })
+
       rafRef.current = requestAnimationFrame(tick)
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      initialized = false
     })
+    resizeObserver.observe(wrap)
+    rafRef.current = requestAnimationFrame(tick)
 
     return () => {
       alive = false
-      cancelAnimationFrame(initId)
+      resizeObserver.disconnect()
       cancelAnimationFrame(rafRef.current)
     }
   }, [])
