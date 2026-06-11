@@ -40,6 +40,19 @@ export default function Home() {
   const dreamRef = useRef(dream)
   useEffect(() => { dreamRef.current = dream }, [dream])
 
+  useEffect(() => {
+    if (!selectedTool || !window.matchMedia('(max-width: 980px)').matches) return
+
+    const scrollId = window.requestAnimationFrame(() => {
+      document.getElementById('tool-recommendation')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    })
+
+    return () => window.cancelAnimationFrame(scrollId)
+  }, [selectedTool, selectedNodeName])
+
   const handleSubmit = async () => {
     if (!dream.trim() || loading) return
     setLoading(true)

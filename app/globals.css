@@ -2558,6 +2558,7 @@ body {
     height: auto;
     padding: 18px 14px calc(18px + env(safe-area-inset-bottom));
     overflow: visible;
+    scroll-margin-top: 12px;
   }
 
   .tool-header,

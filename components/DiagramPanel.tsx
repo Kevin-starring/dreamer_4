@@ -293,6 +293,14 @@ export default function DiagramPanel({ data, onNodeClick, completedNodes, loadin
     const zoomBehavior = zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.25, 4])
       .extent([[0, 0], [panelSize.width, panelSize.height]])
+      .filter(event => {
+        const target = event.target
+        const isActionNode = target instanceof Element && target.closest('.action-node')
+
+        // Keep taps on execution-plan nodes available for selection on touch screens.
+        if (event.type !== 'wheel' && isActionNode) return false
+        return (!event.ctrlKey || event.type === 'wheel') && !event.button
+      })
       .on('zoom', event => {
         g.attr('transform', event.transform.toString())
         setZoomLevel(Math.round(event.transform.k * 100))

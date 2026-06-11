@@ -126,7 +126,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
 
   if (!tool) {
     return (
-      <div className="tool-panel tool-panel--empty">
+      <div className="tool-panel tool-panel--empty" id="tool-recommendation">
         <div className="tool-panel-hint">
           <p>Click any node in the diagram to see the recommended AI tool and prompt</p>
         </div>
@@ -171,7 +171,7 @@ export default function ToolPanel({ tool, useCase, nodeName, dream, isCompleted,
   }
 
   return (
-    <div className="tool-panel">
+    <div className="tool-panel" id="tool-recommendation">
       <div className="tool-header">
         <div className="tool-logo">{tool.emoji}</div>
         <div>
