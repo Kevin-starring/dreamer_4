@@ -1645,9 +1645,10 @@ body {
 }
 
 .app--conversation .header {
-  flex: 0 0 230px;
-  min-height: 230px;
+  flex: 0 0 clamp(280px, 25vw, 330px);
+  min-height: clamp(280px, 25vw, 330px);
   padding-top: 68px;
+  padding-bottom: 34px;
   align-items: flex-start;
 }
 
@@ -1695,7 +1696,7 @@ body {
   position: relative;
   flex: 1;
   min-width: 0;
-  padding: 13px 58px 13px 18px;
+  padding: 13px 106px 13px 18px;
   border: 1px solid var(--border-2);
   border-radius: 24px 24px 24px 7px;
   background: rgba(255, 255, 255, 0.96);
@@ -1756,6 +1757,28 @@ body {
   transition: transform 0.18s ease, background 0.18s ease;
 }
 
+.dream-bubble .dream-voice-btn {
+  right: 54px;
+  background: var(--bg-hover);
+  color: var(--accent);
+  box-shadow: none;
+  font-size: 16px;
+}
+
+.dream-bubble .dream-voice-btn:hover:not(:disabled),
+.dream-bubble .dream-voice-btn--active {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.dream-bubble .dream-voice-btn--active {
+  animation: voicePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes voicePulse {
+  50% { box-shadow: 0 0 0 5px var(--accent-dim); }
+}
+
 .dream-bubble button:hover:not(:disabled) {
   transform: translateY(-2px);
   background: #0879b8;
@@ -1794,7 +1817,7 @@ body {
 }
 
 .app--roadmap .dream-bubble {
-  padding-block: 9px;
+  padding: 9px 92px 9px 18px;
 }
 
 .app--roadmap .dream-bubble-label {
@@ -1811,6 +1834,10 @@ body {
   right: 8px;
   bottom: 8px;
   font-size: 18px;
+}
+
+.app--roadmap .dream-bubble .dream-voice-btn {
+  right: 44px;
 }
 
 .app--conversation .main {
@@ -1903,8 +1930,8 @@ body {
 
 @media (max-width: 980px) {
   .app--conversation .header {
-    flex-basis: 210px;
-    min-height: 210px;
+    flex-basis: 260px;
+    min-height: 260px;
   }
 
   .app--roadmap .main {
@@ -2553,7 +2580,7 @@ body {
   }
 
   .dream-bubble {
-    padding: 10px 54px 10px 14px;
+    padding: 10px 104px 10px 14px;
     border-radius: 18px 18px 18px 6px;
   }
 
@@ -2566,6 +2593,10 @@ body {
     bottom: 6px;
     width: 44px;
     height: 44px;
+  }
+
+  .dream-bubble .dream-voice-btn {
+    right: 56px;
   }
 
   .cache-note,
